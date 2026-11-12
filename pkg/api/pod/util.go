@@ -1132,6 +1132,17 @@ func dropDisabledPodStatusFields(podStatus, oldPodStatus *api.PodStatus, podSpec
 	if !utilfeature.DefaultFeatureGate.Enabled(features.CSIVolumeHealth) && !volumeHealthInUse(oldPodStatus) {
 		podStatus.VolumeHealth = nil
 	}
+
+	if !utilfeature.DefaultFeatureGate.Enabled(features.PodResourceHints) && !resourceHintsInUse(oldPodStatus) {
+		podStatus.ResourceHints = nil
+	}
+}
+
+func resourceHintsInUse(podStatus *api.PodStatus) bool {
+	if podStatus == nil {
+		return false
+	}
+	return len(podStatus.ResourceHints) > 0
 }
 
 // dropDisabledDynamicResourceAllocationFields removes pod claim references from

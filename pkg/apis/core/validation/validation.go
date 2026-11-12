@@ -30,6 +30,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
@@ -10118,4 +10119,90 @@ func validateVolumeStatus(volumeStatus *core.VolumeStatus, fldPath *field.Path) 
 	}
 
 	return allErrors
+}
+
+const (
+	maxPodResourceHints         = 4
+	maxPodResourceHintClockSkew = 5 * time.Minute
+)
+
+// ValidatePodResourceHintsUpdate validates an update through the pods/resourcehints subresource.
+func ValidatePodResourceHintsUpdate(newPod, oldPod *core.Pod) field.ErrorList {
+	allErrs := ValidateObjectMetaUpdate(&newPod.ObjectMeta, &oldPod.ObjectMeta, field.NewPath("metadata"))
+	allErrs = append(allErrs, validatePodResourceHints(newPod, field.NewPath("status", "resourceHints"))...)
+	return allErrs
+}
+
+func validatePodResourceHints(pod *core.Pod, fldPath *field.Path) field.ErrorList {
+	var allErrs field.ErrorList
+	hints := pod.Status.ResourceHints
+	if len(hints) > maxPodResourceHints {
+		allErrs = append(allErrs, field.TooMany(fldPath, len(hints), maxPodResourceHints))
+	}
+	containers := sets.New[string]()
+	for _, c := range pod.Spec.Containers {
+		containers.Insert(c.Name)
+	}
+	for _, c := range pod.Spec.InitContainers {
+		containers.Insert(c.Name)
+	}
+	managers := sets.New[string]()
+	for i, h := range hints {
+		idxPath := fldPath.Index(i)
+		mgrPath := idxPath.Child("manager")
+		if len(h.Manager) == 0 {
+			allErrs = append(allErrs, field.Required(mgrPath, ""))
+		} else {
+			allErrs = append(allErrs, ValidateQualifiedName(h.Manager, mgrPath)...)
+			if !strings.Contains(h.Manager, "/") {
+				allErrs = append(allErrs, field.Invalid(mgrPath, h.Manager, "must be domain-prefixed"))
+			}
+			if managers.Has(h.Manager) {
+				allErrs = append(allErrs, field.Duplicate(mgrPath, h.Manager))
+			}
+			managers.Insert(h.Manager)
+		}
+		if h.UpdateTime.IsZero() {
+			allErrs = append(allErrs, field.Required(idxPath.Child("updateTime"), ""))
+		} else if h.UpdateTime.Time.After(time.Now().Add(maxPodResourceHintClockSkew)) {
+			allErrs = append(allErrs, field.Invalid(idxPath.Child("updateTime"), h.UpdateTime, "must not be in the future"))
+		}
+		allErrs = append(allErrs, validateResourceHintValues(h.Replacement, pod, containers, idxPath.Child("replacement"))...)
+	}
+	return allErrs
+}
+
+func validateResourceHintValues(v *core.ResourceHintValues, pod *core.Pod, containers sets.Set[string], fldPath *field.Path) field.ErrorList {
+	if v == nil {
+		return nil
+	}
+	var allErrs field.ErrorList
+	seen := sets.New[string]()
+	for i, c := range v.Containers {
+		cPath := fldPath.Child("containers").Index(i)
+		if !containers.Has(c.Name) {
+			allErrs = append(allErrs, field.NotFound(cPath.Child("name"), c.Name))
+		} else if seen.Has(c.Name) {
+			allErrs = append(allErrs, field.Duplicate(cPath.Child("name"), c.Name))
+		}
+		seen.Insert(c.Name)
+		allErrs = append(allErrs, validateResourceHintList(c.Requests, cPath.Child("requests"))...)
+	}
+	if len(v.PodRequests) > 0 {
+		if pod.Spec.Resources == nil {
+			allErrs = append(allErrs, field.Forbidden(fldPath.Child("podRequests"), "may only be set when spec.resources is set"))
+		}
+		allErrs = append(allErrs, validateResourceHintList(v.PodRequests, fldPath.Child("podRequests"))...)
+	}
+	return allErrs
+}
+
+func validateResourceHintList(rl core.ResourceList, fldPath *field.Path) field.ErrorList {
+	var allErrs field.ErrorList
+	for name, q := range rl {
+		p := fldPath.Key(string(name))
+		allErrs = append(allErrs, validateResourceName(name, p)...)
+		allErrs = append(allErrs, ValidateResourceQuantityValue(name, q, p)...)
+	}
+	return allErrs
 }

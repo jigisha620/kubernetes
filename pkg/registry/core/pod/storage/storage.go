@@ -59,6 +59,7 @@ type PodStorage struct {
 	Status              *StatusREST
 	EphemeralContainers *EphemeralContainersREST
 	Resize              *ResizeREST
+	ResourceHints       *ResourceHintsREST
 	Log                 *podrest.LogREST
 	Proxy               *podrest.ProxyREST
 	Exec                *podrest.ExecREST
@@ -107,6 +108,8 @@ func NewStorage(optsGetter generic.RESTOptionsGetter, k client.ConnectionInfoGet
 	ephemeralContainersStore.UpdateStrategy = registrypod.EphemeralContainersStrategy
 	resizeStore := *store
 	resizeStore.UpdateStrategy = registrypod.ResizeStrategy
+	resourceHintsStore := *store
+	resourceHintsStore.UpdateStrategy = registrypod.ResourceHintsStrategy
 
 	bindingREST := &BindingREST{store: store}
 	return PodStorage{
@@ -117,6 +120,7 @@ func NewStorage(optsGetter generic.RESTOptionsGetter, k client.ConnectionInfoGet
 		Status:              &StatusREST{store: &statusStore},
 		EphemeralContainers: &EphemeralContainersREST{store: &ephemeralContainersStore},
 		Resize:              &ResizeREST{store: &resizeStore},
+		ResourceHints:       &ResourceHintsREST{store: &resourceHintsStore},
 		Log:                 &podrest.LogREST{Store: store, KubeletConn: k},
 		Proxy:               &podrest.ProxyREST{Store: store, ProxyTransport: proxyTransport},
 		Exec:                &podrest.ExecREST{Store: store, KubeletConn: k, Authorizer: authorizer},
@@ -429,4 +433,38 @@ func (r *ResizeREST) Update(ctx context.Context, name string, objInfo rest.Updat
 	// We are explicitly setting forceAllowCreate to false in the call to the underlying storage because
 	// subresources should never allow create on update.
 	return r.store.Update(ctx, name, objInfo, createValidation, updateValidation, false, options)
+}
+
+// ResourceHintsREST implements the REST endpoint for a pod's status.resourceHints.
+type ResourceHintsREST struct {
+	store *genericregistry.Store
+}
+
+var _ = rest.Patcher(&ResourceHintsREST{})
+
+// Get retrieves the object from the storage. It is required to support Patch.
+func (r *ResourceHintsREST) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
+	return r.store.Get(ctx, name, options)
+}
+
+// New creates a new pod resource
+func (r *ResourceHintsREST) New() runtime.Object {
+	return &api.Pod{}
+}
+
+// Destroy cleans up resources on shutdown.
+func (r *ResourceHintsREST) Destroy() {
+	// Given that underlying store is shared with REST,
+	// we don't destroy it here explicitly.
+}
+
+// Update alters status.resourceHints
+func (r *ResourceHintsREST) Update(ctx context.Context, name string, objInfo rest.UpdatedObjectInfo, createValidation rest.ValidateObjectFunc, updateValidation rest.ValidateObjectUpdateFunc, forceAllowCreate bool, options *metav1.UpdateOptions) (runtime.Object, bool, error) {
+	// subresources should never allow create on update.
+	return r.store.Update(ctx, name, objInfo, createValidation, updateValidation, false, options)
+}
+
+// GetResetFieldsFilter implements rest.ResetFieldsFilterStrategy
+func (r *ResourceHintsREST) GetResetFieldsFilter() map[fieldpath.APIVersion]fieldpath.Filter {
+	return registrypod.ResourceHintsStrategy.GetResetFieldsFilter()
 }

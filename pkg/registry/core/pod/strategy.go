@@ -220,6 +220,7 @@ func (podStatusStrategy) GetResetFields() map[fieldpath.APIVersion]*fieldpath.Se
 			fieldpath.MakePathOrDie("spec"),
 			fieldpath.MakePathOrDie("metadata", "deletionTimestamp"),
 			fieldpath.MakePathOrDie("metadata", "ownerReferences"),
+			fieldpath.MakePathOrDie("status", "resourceHints"),
 		),
 	}
 }
@@ -251,6 +252,9 @@ func (podStatusStrategy) PrepareForUpdate(ctx context.Context, obj, old runtime.
 	if newPod.Status.NodeAllocatableResourceClaimStatuses == nil && oldPod.Status.NodeAllocatableResourceClaimStatuses != nil {
 		newPod.Status.NodeAllocatableResourceClaimStatuses = oldPod.Status.NodeAllocatableResourceClaimStatuses
 	}
+
+	// status.resourceHints is owned by the pods/resourcehints subresource.
+	newPod.Status.ResourceHints = oldPod.Status.ResourceHints
 
 	preserveOldObservedGeneration(newPod, oldPod)
 	podutil.DropDisabledPodFields(newPod, oldPod)
@@ -483,6 +487,50 @@ func (podResizeStrategy) WarningsOnUpdate(ctx context.Context, obj, old runtime.
 // GetResetFieldsFilter returns a set of fields filter reset by the strategy
 // and should not be modified by the user.
 func (p podResizeStrategy) GetResetFieldsFilter() map[fieldpath.APIVersion]fieldpath.Filter {
+	return map[fieldpath.APIVersion]fieldpath.Filter{
+		"v1": p.resetFieldsFilter,
+	}
+}
+
+type podResourceHintsStrategy struct {
+	podStrategy
+
+	resetFieldsFilter fieldpath.Filter
+}
+
+// ResourceHintsStrategy wraps and exports the used podStrategy for the storage package.
+var ResourceHintsStrategy = podResourceHintsStrategy{
+	podStrategy: Strategy,
+	resetFieldsFilter: fieldpath.NewIncludeMatcherFilter(
+		fieldpath.MakePrefixMatcherOrDie("status", "resourceHints"),
+	),
+}
+
+func (podResourceHintsStrategy) PrepareForUpdate(ctx context.Context, obj, old runtime.Object) {
+	newPod := obj.(*api.Pod)
+	oldPod := old.(*api.Pod)
+
+	hints := newPod.Status.ResourceHints
+	newPod.Spec = oldPod.Spec
+	newPod.Status = oldPod.Status
+	metav1.ResetObjectMetaForStatus(&newPod.ObjectMeta, &oldPod.ObjectMeta)
+	newPod.Status.ResourceHints = hints
+
+	podutil.DropDisabledPodFields(newPod, oldPod)
+}
+
+func (podResourceHintsStrategy) ValidateUpdate(ctx context.Context, obj, old runtime.Object) field.ErrorList {
+	return corevalidation.ValidatePodResourceHintsUpdate(obj.(*api.Pod), old.(*api.Pod))
+}
+
+// WarningsOnUpdate returns warnings for the given update.
+func (podResourceHintsStrategy) WarningsOnUpdate(ctx context.Context, obj, old runtime.Object) []string {
+	return nil
+}
+
+// GetResetFieldsFilter returns a set of fields filter reset by the strategy
+// and should not be modified by the user.
+func (p podResourceHintsStrategy) GetResetFieldsFilter() map[fieldpath.APIVersion]fieldpath.Filter {
 	return map[fieldpath.APIVersion]fieldpath.Filter{
 		"v1": p.resetFieldsFilter,
 	}

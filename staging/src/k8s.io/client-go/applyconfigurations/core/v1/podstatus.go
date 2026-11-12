@@ -148,6 +148,11 @@ type PodStatusApplyConfiguration struct {
 	// volumeHealth contains node-reported health for each volume the pod is using.
 	// Populated by the kubelet on the pod's node.
 	VolumeHealth []PodVolumeHealthApplyConfiguration `json:"volumeHealth,omitempty"`
+	// resourceHints are sizing hints published by vertical autoscalers and other
+	// managers for consumers such as node autoscalers. Each entry is owned by one
+	// manager. Hints are advisory; kubelet and kube-scheduler ignore them.
+	// Written only through the pods/resourcehints subresource.
+	ResourceHints []PodResourceHintApplyConfiguration `json:"resourceHints,omitempty"`
 }
 
 // PodStatusApplyConfiguration constructs a declarative configuration of the PodStatus type for use with
@@ -373,6 +378,19 @@ func (b *PodStatusApplyConfiguration) WithVolumeHealth(values ...*PodVolumeHealt
 			panic("nil value passed to WithVolumeHealth")
 		}
 		b.VolumeHealth = append(b.VolumeHealth, *values[i])
+	}
+	return b
+}
+
+// WithResourceHints adds the given value to the ResourceHints field in the declarative configuration
+// and returns the receiver, so that objects can be build by chaining "With" function invocations.
+// If called multiple times, values provided by each call will be appended to the ResourceHints field.
+func (b *PodStatusApplyConfiguration) WithResourceHints(values ...*PodResourceHintApplyConfiguration) *PodStatusApplyConfiguration {
+	for i := range values {
+		if values[i] == nil {
+			panic("nil value passed to WithResourceHints")
+		}
+		b.ResourceHints = append(b.ResourceHints, *values[i])
 	}
 	return b
 }

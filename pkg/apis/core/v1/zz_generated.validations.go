@@ -168,7 +168,7 @@ func RegisterValidations(scheme *runtime.Scheme) error {
 		(*corev1.Pod)(nil),
 		func(ctx context.Context, op operation.Operation, obj, oldObj interface{}) field.ErrorList {
 			switch op.Request.SubresourcePath() {
-			case "/", "/ephemeralcontainers", "/eviction", "/resize", "/status":
+			case "/", "/ephemeralcontainers", "/eviction", "/resize", "/resourcehints", "/status":
 				return Validate_Pod(
 					ctx, op, nil, /* fldPath */
 					obj.(*corev1.Pod),
@@ -1510,6 +1510,39 @@ func Validate_PodStatus(
 				return oldObj.VolumeHealth
 			})
 		errs = append(errs, fn(fldPath.Child("volumeHealth"), obj.VolumeHealth, oldVal, oldObj != nil)...)
+	}
+
+	{ // field corev1.PodStatus.ResourceHints
+		fn := func(
+			fldPath *field.Path,
+			obj, oldObj []corev1.PodResourceHint,
+			oldValueCorrelated bool) (errs field.ErrorList) {
+			// don't revalidate unchanged data
+			if oldValueCorrelated && op.Type == operation.Update {
+				if equality.Semantic.DeepEqual(obj, oldObj) {
+					return nil
+				}
+			}
+			// call field-attached validations
+			earlyReturn := false
+			if e := validate.OptionalSlice(ctx, op, fldPath, obj, oldObj).MarkShortCircuit(); len(e) != 0 {
+				earlyReturn = true
+			}
+			if earlyReturn {
+				return // do not proceed
+			}
+			// lists with map semantics require unique keys
+			if e := validate.ValSliceUnique(ctx, op, fldPath, obj, oldObj,
+				func(a *corev1.PodResourceHint, b *corev1.PodResourceHint) bool { return a.Manager == b.Manager }); len(e) != 0 {
+				errs = append(errs, e...)
+			}
+			return
+		}
+		oldVal := safe.Field(oldObj,
+			func(oldObj *corev1.PodStatus) []corev1.PodResourceHint {
+				return oldObj.ResourceHints
+			})
+		errs = append(errs, fn(fldPath.Child("resourceHints"), obj.ResourceHints, oldVal, oldObj != nil)...)
 	}
 
 	return errs

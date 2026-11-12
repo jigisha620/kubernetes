@@ -102,6 +102,8 @@ func (m *ContainerPort) Reset() { *m = ContainerPort{} }
 
 func (m *ContainerResizePolicy) Reset() { *m = ContainerResizePolicy{} }
 
+func (m *ContainerResourceHint) Reset() { *m = ContainerResourceHint{} }
+
 func (m *ContainerRestartRule) Reset() { *m = ContainerRestartRule{} }
 
 func (m *ContainerRestartRuleOnExitCodes) Reset() { *m = ContainerRestartRuleOnExitCodes{} }
@@ -356,6 +358,8 @@ func (m *PodResourceClaim) Reset() { *m = PodResourceClaim{} }
 
 func (m *PodResourceClaimStatus) Reset() { *m = PodResourceClaimStatus{} }
 
+func (m *PodResourceHint) Reset() { *m = PodResourceHint{} }
+
 func (m *PodSchedulingGate) Reset() { *m = PodSchedulingGate{} }
 
 func (m *PodSchedulingGroup) Reset() { *m = PodSchedulingGroup{} }
@@ -415,6 +419,8 @@ func (m *ResourceClaim) Reset() { *m = ResourceClaim{} }
 func (m *ResourceFieldSelector) Reset() { *m = ResourceFieldSelector{} }
 
 func (m *ResourceHealth) Reset() { *m = ResourceHealth{} }
+
+func (m *ResourceHintValues) Reset() { *m = ResourceHintValues{} }
 
 func (m *ResourceQuota) Reset() { *m = ResourceQuota{} }
 
@@ -2498,6 +2504,63 @@ func (m *ContainerResizePolicy) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i -= len(m.ResourceName)
 	copy(dAtA[i:], m.ResourceName)
 	i = encodeVarintGenerated(dAtA, i, uint64(len(m.ResourceName)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *ContainerResourceHint) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ContainerResourceHint) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ContainerResourceHint) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Requests) > 0 {
+		keysForRequests := make([]string, 0, len(m.Requests))
+		for k := range m.Requests {
+			keysForRequests = append(keysForRequests, string(k))
+		}
+		sort.Strings(keysForRequests)
+		for iNdEx := len(keysForRequests) - 1; iNdEx >= 0; iNdEx-- {
+			v := m.Requests[ResourceName(keysForRequests[iNdEx])]
+			baseI := i
+			{
+				size, err := (&v).MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+			i -= len(keysForRequests[iNdEx])
+			copy(dAtA[i:], keysForRequests[iNdEx])
+			i = encodeVarintGenerated(dAtA, i, uint64(len(keysForRequests[iNdEx])))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintGenerated(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintGenerated(dAtA, i, uint64(len(m.Name)))
 	i--
 	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
@@ -9769,6 +9832,56 @@ func (m *PodResourceClaimStatus) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	return len(dAtA) - i, nil
 }
 
+func (m *PodResourceHint) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PodResourceHint) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PodResourceHint) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Replacement != nil {
+		{
+			size, err := m.Replacement.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintGenerated(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	{
+		size, err := m.UpdateTime.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintGenerated(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	i -= len(m.Manager)
+	copy(dAtA[i:], m.Manager)
+	i = encodeVarintGenerated(dAtA, i, uint64(len(m.Manager)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
 func (m *PodSchedulingGate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -10547,6 +10660,22 @@ func (m *PodStatus) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.ResourceHints) > 0 {
+		for iNdEx := len(m.ResourceHints) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ResourceHints[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1
+			i--
+			dAtA[i] = 0xba
+		}
+	}
 	if len(m.VolumeHealth) > 0 {
 		for iNdEx := len(m.VolumeHealth) - 1; iNdEx >= 0; iNdEx-- {
 			{
@@ -11992,6 +12121,72 @@ func (m *ResourceHealth) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i = encodeVarintGenerated(dAtA, i, uint64(len(m.ResourceID)))
 	i--
 	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *ResourceHintValues) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ResourceHintValues) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ResourceHintValues) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.PodRequests) > 0 {
+		keysForPodRequests := make([]string, 0, len(m.PodRequests))
+		for k := range m.PodRequests {
+			keysForPodRequests = append(keysForPodRequests, string(k))
+		}
+		sort.Strings(keysForPodRequests)
+		for iNdEx := len(keysForPodRequests) - 1; iNdEx >= 0; iNdEx-- {
+			v := m.PodRequests[ResourceName(keysForPodRequests[iNdEx])]
+			baseI := i
+			{
+				size, err := (&v).MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+			i -= len(keysForPodRequests[iNdEx])
+			copy(dAtA[i:], keysForPodRequests[iNdEx])
+			i = encodeVarintGenerated(dAtA, i, uint64(len(keysForPodRequests[iNdEx])))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintGenerated(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Containers) > 0 {
+		for iNdEx := len(m.Containers) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Containers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenerated(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -16284,6 +16479,26 @@ func (m *ContainerResizePolicy) Size() (n int) {
 	return n
 }
 
+func (m *ContainerResourceHint) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Name)
+	n += 1 + l + sovGenerated(uint64(l))
+	if len(m.Requests) > 0 {
+		for k, v := range m.Requests {
+			_ = k
+			_ = v
+			l = v.Size()
+			mapEntrySize := 1 + len(k) + sovGenerated(uint64(len(k))) + 1 + l + sovGenerated(uint64(l))
+			n += mapEntrySize + 1 + sovGenerated(uint64(mapEntrySize))
+		}
+	}
+	return n
+}
+
 func (m *ContainerRestartRule) Size() (n int) {
 	if m == nil {
 		return 0
@@ -18991,6 +19206,23 @@ func (m *PodResourceClaimStatus) Size() (n int) {
 	return n
 }
 
+func (m *PodResourceHint) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Manager)
+	n += 1 + l + sovGenerated(uint64(l))
+	l = m.UpdateTime.Size()
+	n += 1 + l + sovGenerated(uint64(l))
+	if m.Replacement != nil {
+		l = m.Replacement.Size()
+		n += 1 + l + sovGenerated(uint64(l))
+	}
+	return n
+}
+
 func (m *PodSchedulingGate) Size() (n int) {
 	if m == nil {
 		return 0
@@ -19361,6 +19593,12 @@ func (m *PodStatus) Size() (n int) {
 	}
 	if len(m.VolumeHealth) > 0 {
 		for _, e := range m.VolumeHealth {
+			l = e.Size()
+			n += 2 + l + sovGenerated(uint64(l))
+		}
+	}
+	if len(m.ResourceHints) > 0 {
+		for _, e := range m.ResourceHints {
 			l = e.Size()
 			n += 2 + l + sovGenerated(uint64(l))
 		}
@@ -19801,6 +20039,30 @@ func (m *ResourceHealth) Size() (n int) {
 	if m.Message != nil {
 		l = len(*m.Message)
 		n += 1 + l + sovGenerated(uint64(l))
+	}
+	return n
+}
+
+func (m *ResourceHintValues) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Containers) > 0 {
+		for _, e := range m.Containers {
+			l = e.Size()
+			n += 1 + l + sovGenerated(uint64(l))
+		}
+	}
+	if len(m.PodRequests) > 0 {
+		for k, v := range m.PodRequests {
+			_ = k
+			_ = v
+			l = v.Size()
+			mapEntrySize := 1 + len(k) + sovGenerated(uint64(len(k))) + 1 + l + sovGenerated(uint64(l))
+			n += mapEntrySize + 1 + sovGenerated(uint64(mapEntrySize))
+		}
 	}
 	return n
 }
@@ -21654,6 +21916,27 @@ func (this *ContainerResizePolicy) String() string {
 	s := strings.Join([]string{`&ContainerResizePolicy{`,
 		`ResourceName:` + fmt.Sprintf("%v", this.ResourceName) + `,`,
 		`RestartPolicy:` + fmt.Sprintf("%v", this.RestartPolicy) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ContainerResourceHint) String() string {
+	if this == nil {
+		return "nil"
+	}
+	keysForRequests := make([]string, 0, len(this.Requests))
+	for k := range this.Requests {
+		keysForRequests = append(keysForRequests, string(k))
+	}
+	sort.Strings(keysForRequests)
+	mapStringForRequests := "ResourceList{"
+	for _, k := range keysForRequests {
+		mapStringForRequests += fmt.Sprintf("%v: %v,", k, this.Requests[ResourceName(k)])
+	}
+	mapStringForRequests += "}"
+	s := strings.Join([]string{`&ContainerResourceHint{`,
+		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
+		`Requests:` + mapStringForRequests + `,`,
 		`}`,
 	}, "")
 	return s
@@ -23675,6 +23958,18 @@ func (this *PodResourceClaimStatus) String() string {
 	}, "")
 	return s
 }
+func (this *PodResourceHint) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&PodResourceHint{`,
+		`Manager:` + fmt.Sprintf("%v", this.Manager) + `,`,
+		`UpdateTime:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.UpdateTime), "Time", "v1.Time", 1), `&`, ``, 1) + `,`,
+		`Replacement:` + strings.Replace(this.Replacement.String(), "ResourceHintValues", "ResourceHintValues", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
 func (this *PodSchedulingGate) String() string {
 	if this == nil {
 		return "nil"
@@ -23913,6 +24208,11 @@ func (this *PodStatus) String() string {
 		repeatedStringForVolumeHealth += strings.Replace(strings.Replace(f.String(), "PodVolumeHealth", "PodVolumeHealth", 1), `&`, ``, 1) + ","
 	}
 	repeatedStringForVolumeHealth += "}"
+	repeatedStringForResourceHints := "[]PodResourceHint{"
+	for _, f := range this.ResourceHints {
+		repeatedStringForResourceHints += strings.Replace(strings.Replace(f.String(), "PodResourceHint", "PodResourceHint", 1), `&`, ``, 1) + ","
+	}
+	repeatedStringForResourceHints += "}"
 	keysForAllocatedResources := make([]string, 0, len(this.AllocatedResources))
 	for k := range this.AllocatedResources {
 		keysForAllocatedResources = append(keysForAllocatedResources, string(k))
@@ -23946,6 +24246,7 @@ func (this *PodStatus) String() string {
 		`Resources:` + strings.Replace(this.Resources.String(), "ResourceRequirements", "ResourceRequirements", 1) + `,`,
 		`NodeAllocatableResourceClaimStatuses:` + repeatedStringForNodeAllocatableResourceClaimStatuses + `,`,
 		`VolumeHealth:` + repeatedStringForVolumeHealth + `,`,
+		`ResourceHints:` + repeatedStringForResourceHints + `,`,
 		`}`,
 	}, "")
 	return s
@@ -24286,6 +24587,32 @@ func (this *ResourceHealth) String() string {
 		`ResourceID:` + fmt.Sprintf("%v", this.ResourceID) + `,`,
 		`Health:` + fmt.Sprintf("%v", this.Health) + `,`,
 		`Message:` + valueToStringGenerated(this.Message) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ResourceHintValues) String() string {
+	if this == nil {
+		return "nil"
+	}
+	repeatedStringForContainers := "[]ContainerResourceHint{"
+	for _, f := range this.Containers {
+		repeatedStringForContainers += strings.Replace(strings.Replace(f.String(), "ContainerResourceHint", "ContainerResourceHint", 1), `&`, ``, 1) + ","
+	}
+	repeatedStringForContainers += "}"
+	keysForPodRequests := make([]string, 0, len(this.PodRequests))
+	for k := range this.PodRequests {
+		keysForPodRequests = append(keysForPodRequests, string(k))
+	}
+	sort.Strings(keysForPodRequests)
+	mapStringForPodRequests := "ResourceList{"
+	for _, k := range keysForPodRequests {
+		mapStringForPodRequests += fmt.Sprintf("%v: %v,", k, this.PodRequests[ResourceName(k)])
+	}
+	mapStringForPodRequests += "}"
+	s := strings.Join([]string{`&ResourceHintValues{`,
+		`Containers:` + repeatedStringForContainers + `,`,
+		`PodRequests:` + mapStringForPodRequests + `,`,
 		`}`,
 	}, "")
 	return s
@@ -31516,6 +31843,217 @@ func (m *ContainerResizePolicy) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.RestartPolicy = ResourceResizeRestartPolicy(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenerated(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ContainerResourceHint) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenerated
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ContainerResourceHint: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ContainerResourceHint: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Requests", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Requests == nil {
+				m.Requests = make(ResourceList)
+			}
+			var mapkey ResourceName
+			mapvalue := &resource.Quantity{}
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowGenerated
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenerated
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthGenerated
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthGenerated
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = ResourceName(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					var mapmsglen int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenerated
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						mapmsglen |= int(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					if mapmsglen < 0 {
+						return ErrInvalidLengthGenerated
+					}
+					postmsgIndex := iNdEx + mapmsglen
+					if postmsgIndex < 0 {
+						return ErrInvalidLengthGenerated
+					}
+					if postmsgIndex > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapvalue = &resource.Quantity{}
+					if err := mapvalue.Unmarshal(dAtA[iNdEx:postmsgIndex]); err != nil {
+						return err
+					}
+					iNdEx = postmsgIndex
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipGenerated(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthGenerated
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.Requests[ResourceName(mapkey)] = *mapvalue
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -54668,6 +55206,157 @@ func (m *PodResourceClaimStatus) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *PodResourceHint) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenerated
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PodResourceHint: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PodResourceHint: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Manager", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Manager = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UpdateTime", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.UpdateTime.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Replacement", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Replacement == nil {
+				m.Replacement = &ResourceHintValues{}
+			}
+			if err := m.Replacement.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenerated(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *PodSchedulingGate) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -57789,6 +58478,40 @@ func (m *PodStatus) Unmarshal(dAtA []byte) error {
 			}
 			m.VolumeHealth = append(m.VolumeHealth, PodVolumeHealth{})
 			if err := m.VolumeHealth[len(m.VolumeHealth)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 23:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ResourceHints", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ResourceHints = append(m.ResourceHints, PodResourceHint{})
+			if err := m.ResourceHints[len(m.ResourceHints)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -61729,6 +62452,219 @@ func (m *ResourceHealth) Unmarshal(dAtA []byte) error {
 			}
 			s := string(dAtA[iNdEx:postIndex])
 			m.Message = &s
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenerated(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ResourceHintValues) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenerated
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ResourceHintValues: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ResourceHintValues: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Containers", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Containers = append(m.Containers, ContainerResourceHint{})
+			if err := m.Containers[len(m.Containers)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PodRequests", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.PodRequests == nil {
+				m.PodRequests = make(ResourceList)
+			}
+			var mapkey ResourceName
+			mapvalue := &resource.Quantity{}
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowGenerated
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenerated
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthGenerated
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthGenerated
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = ResourceName(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					var mapmsglen int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowGenerated
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						mapmsglen |= int(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					if mapmsglen < 0 {
+						return ErrInvalidLengthGenerated
+					}
+					postmsgIndex := iNdEx + mapmsglen
+					if postmsgIndex < 0 {
+						return ErrInvalidLengthGenerated
+					}
+					if postmsgIndex > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapvalue = &resource.Quantity{}
+					if err := mapvalue.Unmarshal(dAtA[iNdEx:postmsgIndex]); err != nil {
+						return err
+					}
+					iNdEx = postmsgIndex
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipGenerated(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthGenerated
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.PodRequests[ResourceName(mapkey)] = *mapvalue
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

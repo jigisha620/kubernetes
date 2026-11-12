@@ -4950,6 +4950,59 @@ type PodStatus struct {
 	// +listType=map
 	// +listMapKey=name
 	VolumeHealth []PodVolumeHealth
+
+	// ResourceHints are sizing hints published by vertical autoscalers and other
+	// managers. Written only through the pods/resourcehints subresource.
+	// +featureGate=PodResourceHints
+	// +optional
+	// +listType=map
+	// +listMapKey=manager
+	ResourceHints []PodResourceHint
+}
+
+// PodResourceHint is one manager's sizing hints for a pod.
+type PodResourceHint struct {
+	// manager identifies the writer as a domain-prefixed path, for example
+	// "autoscaling.k8s.io/vpa-updater".
+	// +required
+	Manager string
+
+	// updateTime is when the manager last computed this entry.
+	// +required
+	UpdateTime metav1.Time
+
+	// replacement is what a replacement of this pod would request if it were
+	// created now, including any startup boost. It is merged over the
+	// replacement's spec per container and per resource.
+	// +optional
+	Replacement *ResourceHintValues
+}
+
+// ResourceHintValues are requests for some of a pod's containers and, for pods
+// with pod-level resources, for the pod.
+type ResourceHintValues struct {
+	// containers lists per-container requests. Names refer to entries in
+	// spec.containers or spec.initContainers. Containers and resources not
+	// listed keep their spec values.
+	// +optional
+	// +listType=map
+	// +listMapKey=name
+	Containers []ContainerResourceHint
+
+	// podRequests are pod-level requests, used when spec.resources is set.
+	// +optional
+	PodRequests ResourceList
+}
+
+// ContainerResourceHint holds hinted requests for one container.
+type ContainerResourceHint struct {
+	// name of the container.
+	// +required
+	Name string
+
+	// requests for the container.
+	// +optional
+	Requests ResourceList
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

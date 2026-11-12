@@ -5037,6 +5037,18 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
+- name: io.k8s.api.core.v1.ContainerResourceHint
+  map:
+    fields:
+    - name: name
+      type:
+        scalar: string
+      default: ""
+    - name: requests
+      type:
+        map:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.api.resource.Quantity
 - name: io.k8s.api.core.v1.ContainerRestartRule
   map:
     fields:
@@ -7114,6 +7126,19 @@ var schemaYAML = typed.YAMLObject(`types:
     - name: resourceClaimName
       type:
         scalar: string
+- name: io.k8s.api.core.v1.PodResourceHint
+  map:
+    fields:
+    - name: manager
+      type:
+        scalar: string
+      default: ""
+    - name: replacement
+      type:
+        namedType: io.k8s.api.core.v1.ResourceHintValues
+    - name: updateTime
+      type:
+        namedType: io.k8s.apimachinery.pkg.apis.meta.v1.Time
 - name: io.k8s.api.core.v1.PodSchedulingGate
   map:
     fields:
@@ -7467,6 +7492,14 @@ var schemaYAML = typed.YAMLObject(`types:
           elementRelationship: associative
           keys:
           - name
+    - name: resourceHints
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.api.core.v1.PodResourceHint
+          elementRelationship: associative
+          keys:
+          - manager
     - name: resources
       type:
         namedType: io.k8s.api.core.v1.ResourceRequirements
@@ -7830,6 +7863,22 @@ var schemaYAML = typed.YAMLObject(`types:
       type:
         scalar: string
       default: ""
+- name: io.k8s.api.core.v1.ResourceHintValues
+  map:
+    fields:
+    - name: containers
+      type:
+        list:
+          elementType:
+            namedType: io.k8s.api.core.v1.ContainerResourceHint
+          elementRelationship: associative
+          keys:
+          - name
+    - name: podRequests
+      type:
+        map:
+          elementType:
+            namedType: io.k8s.apimachinery.pkg.api.resource.Quantity
 - name: io.k8s.api.core.v1.ResourceQuota
   map:
     fields:

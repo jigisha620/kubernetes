@@ -670,6 +670,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &applyconfigurationscorev1.ContainerPortApplyConfiguration{}
 	case corev1.SchemeGroupVersion.WithKind("ContainerResizePolicy"):
 		return &applyconfigurationscorev1.ContainerResizePolicyApplyConfiguration{}
+	case corev1.SchemeGroupVersion.WithKind("ContainerResourceHint"):
+		return &applyconfigurationscorev1.ContainerResourceHintApplyConfiguration{}
 	case corev1.SchemeGroupVersion.WithKind("ContainerRestartRule"):
 		return &applyconfigurationscorev1.ContainerRestartRuleApplyConfiguration{}
 	case corev1.SchemeGroupVersion.WithKind("ContainerRestartRuleOnExitCodes"):
@@ -898,6 +900,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &applyconfigurationscorev1.PodResourceClaimApplyConfiguration{}
 	case corev1.SchemeGroupVersion.WithKind("PodResourceClaimStatus"):
 		return &applyconfigurationscorev1.PodResourceClaimStatusApplyConfiguration{}
+	case corev1.SchemeGroupVersion.WithKind("PodResourceHint"):
+		return &applyconfigurationscorev1.PodResourceHintApplyConfiguration{}
 	case corev1.SchemeGroupVersion.WithKind("PodSchedulingGate"):
 		return &applyconfigurationscorev1.PodSchedulingGateApplyConfiguration{}
 	case corev1.SchemeGroupVersion.WithKind("PodSchedulingGroup"):
@@ -946,6 +950,8 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &applyconfigurationscorev1.ResourceFieldSelectorApplyConfiguration{}
 	case corev1.SchemeGroupVersion.WithKind("ResourceHealth"):
 		return &applyconfigurationscorev1.ResourceHealthApplyConfiguration{}
+	case corev1.SchemeGroupVersion.WithKind("ResourceHintValues"):
+		return &applyconfigurationscorev1.ResourceHintValuesApplyConfiguration{}
 	case corev1.SchemeGroupVersion.WithKind("ResourceQuota"):
 		return &applyconfigurationscorev1.ResourceQuotaApplyConfiguration{}
 	case corev1.SchemeGroupVersion.WithKind("ResourceQuotaSpec"):

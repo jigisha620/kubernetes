@@ -512,6 +512,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		corev1.ContainerImage{}.OpenAPIModelName():                                                                      schema_k8sio_api_core_v1_ContainerImage(ref),
 		corev1.ContainerPort{}.OpenAPIModelName():                                                                       schema_k8sio_api_core_v1_ContainerPort(ref),
 		corev1.ContainerResizePolicy{}.OpenAPIModelName():                                                               schema_k8sio_api_core_v1_ContainerResizePolicy(ref),
+		corev1.ContainerResourceHint{}.OpenAPIModelName():                                                               schema_k8sio_api_core_v1_ContainerResourceHint(ref),
 		corev1.ContainerRestartRule{}.OpenAPIModelName():                                                                schema_k8sio_api_core_v1_ContainerRestartRule(ref),
 		corev1.ContainerRestartRuleOnExitCodes{}.OpenAPIModelName():                                                     schema_k8sio_api_core_v1_ContainerRestartRuleOnExitCodes(ref),
 		corev1.ContainerState{}.OpenAPIModelName():                                                                      schema_k8sio_api_core_v1_ContainerState(ref),
@@ -639,6 +640,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		corev1.PodReadinessGate{}.OpenAPIModelName():                                                                    schema_k8sio_api_core_v1_PodReadinessGate(ref),
 		corev1.PodResourceClaim{}.OpenAPIModelName():                                                                    schema_k8sio_api_core_v1_PodResourceClaim(ref),
 		corev1.PodResourceClaimStatus{}.OpenAPIModelName():                                                              schema_k8sio_api_core_v1_PodResourceClaimStatus(ref),
+		corev1.PodResourceHint{}.OpenAPIModelName():                                                                     schema_k8sio_api_core_v1_PodResourceHint(ref),
 		corev1.PodSchedulingGate{}.OpenAPIModelName():                                                                   schema_k8sio_api_core_v1_PodSchedulingGate(ref),
 		corev1.PodSchedulingGroup{}.OpenAPIModelName():                                                                  schema_k8sio_api_core_v1_PodSchedulingGroup(ref),
 		corev1.PodSecurityContext{}.OpenAPIModelName():                                                                  schema_k8sio_api_core_v1_PodSecurityContext(ref),
@@ -668,6 +670,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		corev1.ResourceClaim{}.OpenAPIModelName():                                                                       schema_k8sio_api_core_v1_ResourceClaim(ref),
 		corev1.ResourceFieldSelector{}.OpenAPIModelName():                                                               schema_k8sio_api_core_v1_ResourceFieldSelector(ref),
 		corev1.ResourceHealth{}.OpenAPIModelName():                                                                      schema_k8sio_api_core_v1_ResourceHealth(ref),
+		corev1.ResourceHintValues{}.OpenAPIModelName():                                                                  schema_k8sio_api_core_v1_ResourceHintValues(ref),
 		corev1.ResourceQuota{}.OpenAPIModelName():                                                                       schema_k8sio_api_core_v1_ResourceQuota(ref),
 		corev1.ResourceQuotaList{}.OpenAPIModelName():                                                                   schema_k8sio_api_core_v1_ResourceQuotaList(ref),
 		corev1.ResourceQuotaSpec{}.OpenAPIModelName():                                                                   schema_k8sio_api_core_v1_ResourceQuotaSpec(ref),
@@ -21679,6 +21682,44 @@ func schema_k8sio_api_core_v1_ContainerResizePolicy(ref common.ReferenceCallback
 	}
 }
 
+func schema_k8sio_api_core_v1_ContainerResourceHint(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ContainerResourceHint holds hinted requests for one container.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "name of the container.",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"requests": {
+						SchemaProps: spec.SchemaProps{
+							Description: "requests for the container.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref(resource.Quantity{}.OpenAPIModelName()),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"name"},
+			},
+		},
+		Dependencies: []string{
+			resource.Quantity{}.OpenAPIModelName()},
+	}
+}
+
 func schema_k8sio_api_core_v1_ContainerRestartRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -28733,6 +28774,42 @@ func schema_k8sio_api_core_v1_PodResourceClaimStatus(ref common.ReferenceCallbac
 	}
 }
 
+func schema_k8sio_api_core_v1_PodResourceHint(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "PodResourceHint is one manager's sizing hints for a pod.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"manager": {
+						SchemaProps: spec.SchemaProps{
+							Description: "manager identifies the writer as a domain-prefixed path, for example \"autoscaling.k8s.io/vpa-updater\".",
+							Default:     "",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"updateTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "updateTime is when the manager last computed this entry.",
+							Ref:         ref(metav1.Time{}.OpenAPIModelName()),
+						},
+					},
+					"replacement": {
+						SchemaProps: spec.SchemaProps{
+							Description: "replacement is what a replacement of this pod would request if it were created now, including any startup boost. It is merged over the replacement's spec per container and per resource.",
+							Ref:         ref(corev1.ResourceHintValues{}.OpenAPIModelName()),
+						},
+					},
+				},
+				Required: []string{"manager", "updateTime"},
+			},
+		},
+		Dependencies: []string{
+			corev1.ResourceHintValues{}.OpenAPIModelName(), metav1.Time{}.OpenAPIModelName()},
+	}
+}
+
 func schema_k8sio_api_core_v1_PodSchedulingGate(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -29742,11 +29819,32 @@ func schema_k8sio_api_core_v1_PodStatus(ref common.ReferenceCallback) common.Ope
 							},
 						},
 					},
+					"resourceHints": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"manager",
+								},
+								"x-kubernetes-list-type": "map",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "resourceHints are sizing hints published by vertical autoscalers and other managers for consumers such as node autoscalers. Each entry is owned by one manager. Hints are advisory; kubelet and kube-scheduler ignore them. Written only through the pods/resourcehints subresource.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref(corev1.PodResourceHint{}.OpenAPIModelName()),
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			corev1.ContainerStatus{}.OpenAPIModelName(), corev1.HostIP{}.OpenAPIModelName(), corev1.NodeAllocatableResourceClaimStatus{}.OpenAPIModelName(), corev1.PodCondition{}.OpenAPIModelName(), corev1.PodExtendedResourceClaimStatus{}.OpenAPIModelName(), corev1.PodIP{}.OpenAPIModelName(), corev1.PodResourceClaimStatus{}.OpenAPIModelName(), corev1.PodVolumeHealth{}.OpenAPIModelName(), corev1.ResourceRequirements{}.OpenAPIModelName(), resource.Quantity{}.OpenAPIModelName(), metav1.Time{}.OpenAPIModelName()},
+			corev1.ContainerStatus{}.OpenAPIModelName(), corev1.HostIP{}.OpenAPIModelName(), corev1.NodeAllocatableResourceClaimStatus{}.OpenAPIModelName(), corev1.PodCondition{}.OpenAPIModelName(), corev1.PodExtendedResourceClaimStatus{}.OpenAPIModelName(), corev1.PodIP{}.OpenAPIModelName(), corev1.PodResourceClaimStatus{}.OpenAPIModelName(), corev1.PodResourceHint{}.OpenAPIModelName(), corev1.PodVolumeHealth{}.OpenAPIModelName(), corev1.ResourceRequirements{}.OpenAPIModelName(), resource.Quantity{}.OpenAPIModelName(), metav1.Time{}.OpenAPIModelName()},
 	}
 }
 
@@ -30913,6 +31011,56 @@ func schema_k8sio_api_core_v1_ResourceHealth(ref common.ReferenceCallback) commo
 				Required: []string{"resourceID"},
 			},
 		},
+	}
+}
+
+func schema_k8sio_api_core_v1_ResourceHintValues(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ResourceHintValues are requests for some of a pod's containers and, for pods with pod-level resources, for the pod.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"containers": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-map-keys": []interface{}{
+									"name",
+								},
+								"x-kubernetes-list-type": "map",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "containers lists per-container requests. Names refer to entries in spec.containers or spec.initContainers. Containers and resources not listed keep their spec values.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref(corev1.ContainerResourceHint{}.OpenAPIModelName()),
+									},
+								},
+							},
+						},
+					},
+					"podRequests": {
+						SchemaProps: spec.SchemaProps{
+							Description: "podRequests are pod-level requests, used when spec.resources is set.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref(resource.Quantity{}.OpenAPIModelName()),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			corev1.ContainerResourceHint{}.OpenAPIModelName(), resource.Quantity{}.OpenAPIModelName()},
 	}
 }
 

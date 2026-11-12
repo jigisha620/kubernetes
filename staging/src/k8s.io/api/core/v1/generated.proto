@@ -991,6 +991,17 @@ message ContainerResizePolicy {
   optional string restartPolicy = 2;
 }
 
+// ContainerResourceHint holds hinted requests for one container.
+message ContainerResourceHint {
+  // name of the container.
+  // +required
+  optional string name = 1;
+
+  // requests for the container.
+  // +optional
+  map<string, .k8s.io.apimachinery.pkg.api.resource.Quantity> requests = 2;
+}
+
 // ContainerRestartRule describes how a container exit is handled.
 message ContainerRestartRule {
   // Specifies the action taken on a container exit if the requirements
@@ -3894,6 +3905,7 @@ message PhotonPersistentDiskVolumeSource {
 // +k8s:supportsSubresource="/ephemeralcontainers"
 // +k8s:supportsSubresource="/resize"
 // +k8s:supportsSubresource="/eviction"
+// +k8s:supportsSubresource="/resourcehints"
 message Pod {
   // Standard object's metadata.
   // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
@@ -4469,6 +4481,24 @@ message PodResourceClaimStatus {
   //
   // +optional
   optional string resourceClaimName = 2;
+}
+
+// PodResourceHint is one manager's sizing hints for a pod.
+message PodResourceHint {
+  // manager identifies the writer as a domain-prefixed path, for example
+  // "autoscaling.k8s.io/vpa-updater".
+  // +required
+  optional string manager = 1;
+
+  // updateTime is when the manager last computed this entry.
+  // +required
+  optional .k8s.io.apimachinery.pkg.apis.meta.v1.Time updateTime = 2;
+
+  // replacement is what a replacement of this pod would request if it were
+  // created now, including any startup boost. It is merged over the
+  // replacement's spec per container and per resource.
+  // +optional
+  optional ResourceHintValues replacement = 3;
 }
 
 // PodSchedulingGate is associated to a Pod to guard its scheduling.
@@ -5258,6 +5288,19 @@ message PodStatus {
   // +k8s:listType=map
   // +k8s:listMapKey=name
   repeated PodVolumeHealth volumeHealth = 22;
+
+  // resourceHints are sizing hints published by vertical autoscalers and other
+  // managers for consumers such as node autoscalers. Each entry is owned by one
+  // manager. Hints are advisory; kubelet and kube-scheduler ignore them.
+  // Written only through the pods/resourcehints subresource.
+  // +featureGate=PodResourceHints
+  // +optional
+  // +listType=map
+  // +listMapKey=manager
+  // +k8s:optional
+  // +k8s:listType=map
+  // +k8s:listMapKey=manager
+  repeated PodResourceHint resourceHints = 23;
 }
 
 // PodTemplate describes a template for creating copies of a predefined pod.
@@ -5832,6 +5875,22 @@ message ResourceHealth {
   // +featureGate=ResourceHealthStatusMessage
   // +optional
   optional string message = 6;
+}
+
+// ResourceHintValues are requests for some of a pod's containers and, for pods
+// with pod-level resources, for the pod.
+message ResourceHintValues {
+  // containers lists per-container requests. Names refer to entries in
+  // spec.containers or spec.initContainers. Containers and resources not
+  // listed keep their spec values.
+  // +optional
+  // +listType=map
+  // +listMapKey=name
+  repeated ContainerResourceHint containers = 1;
+
+  // podRequests are pod-level requests, used when spec.resources is set.
+  // +optional
+  map<string, .k8s.io.apimachinery.pkg.api.resource.Quantity> podRequests = 2;
 }
 
 // ResourceQuota sets aggregate quota restrictions enforced per namespace

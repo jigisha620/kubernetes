@@ -915,6 +915,12 @@ const (
 	// (if requested) dynamic resource allocation are complete.
 	PodReadyToStartContainersCondition featuregate.Feature = "PodReadyToStartContainersCondition"
 
+	// owner: @AndrewSirenko
+	// kep: https://kep.k8s.io/NNNN
+	//
+	// Enables the pods/resourcehints subresource and status.resourceHints.
+	PodResourceHints featuregate.Feature = "PodResourceHints"
+
 	// owner: @Huang-Wei
 	// kep: https://kep.k8s.io/3521
 	//
@@ -1991,6 +1997,10 @@ var defaultVersionedKubernetesFeatureGates = map[featuregate.Feature]featuregate
 		{Version: version.MustParse("1.37"), Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // GA in 1.37, remove in 1.40
 	},
 
+	PodResourceHints: {
+		{Version: version.MustParse("1.37"), Default: false, PreRelease: featuregate.Alpha},
+	},
+
 	PodSchedulingReadiness: {
 		{Version: version.MustParse("1.26"), Default: false, PreRelease: featuregate.Alpha},
 		{Version: version.MustParse("1.27"), Default: true, PreRelease: featuregate.Beta},
@@ -2793,6 +2803,8 @@ var defaultKubernetesFeatureGateDependencies = map[featuregate.Feature][]feature
 	PodObservedGenerationTracking: {},
 
 	PodReadyToStartContainersCondition: {},
+
+	PodResourceHints: {},
 
 	PodSchedulingReadiness: {},
 

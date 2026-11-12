@@ -187,6 +187,11 @@ func (in ContainerResizePolicy) OpenAPIModelName() string {
 }
 
 // OpenAPIModelName returns the OpenAPI model name for this type.
+func (in ContainerResourceHint) OpenAPIModelName() string {
+	return "io.k8s.api.core.v1.ContainerResourceHint"
+}
+
+// OpenAPIModelName returns the OpenAPI model name for this type.
 func (in ContainerRestartRule) OpenAPIModelName() string {
 	return "io.k8s.api.core.v1.ContainerRestartRule"
 }
@@ -822,6 +827,11 @@ func (in PodResourceClaimStatus) OpenAPIModelName() string {
 }
 
 // OpenAPIModelName returns the OpenAPI model name for this type.
+func (in PodResourceHint) OpenAPIModelName() string {
+	return "io.k8s.api.core.v1.PodResourceHint"
+}
+
+// OpenAPIModelName returns the OpenAPI model name for this type.
 func (in PodSchedulingGate) OpenAPIModelName() string {
 	return "io.k8s.api.core.v1.PodSchedulingGate"
 }
@@ -969,6 +979,11 @@ func (in ResourceFieldSelector) OpenAPIModelName() string {
 // OpenAPIModelName returns the OpenAPI model name for this type.
 func (in ResourceHealth) OpenAPIModelName() string {
 	return "io.k8s.api.core.v1.ResourceHealth"
+}
+
+// OpenAPIModelName returns the OpenAPI model name for this type.
+func (in ResourceHintValues) OpenAPIModelName() string {
+	return "io.k8s.api.core.v1.ResourceHintValues"
 }
 
 // OpenAPIModelName returns the OpenAPI model name for this type.

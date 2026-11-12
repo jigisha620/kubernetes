@@ -427,6 +427,16 @@ func (ContainerResizePolicy) SwaggerDoc() map[string]string {
 	return map_ContainerResizePolicy
 }
 
+var map_ContainerResourceHint = map[string]string{
+	"":         "ContainerResourceHint holds hinted requests for one container.",
+	"name":     "name of the container.",
+	"requests": "requests for the container.",
+}
+
+func (ContainerResourceHint) SwaggerDoc() map[string]string {
+	return map_ContainerResourceHint
+}
+
 var map_ContainerRestartRule = map[string]string{
 	"":          "ContainerRestartRule describes how a container exit is handled.",
 	"action":    "Specifies the action taken on a container exit if the requirements are satisfied. The only possible value is \"Restart\" to restart the container.",
@@ -1915,6 +1925,17 @@ func (PodResourceClaimStatus) SwaggerDoc() map[string]string {
 	return map_PodResourceClaimStatus
 }
 
+var map_PodResourceHint = map[string]string{
+	"":            "PodResourceHint is one manager's sizing hints for a pod.",
+	"manager":     "manager identifies the writer as a domain-prefixed path, for example \"autoscaling.k8s.io/vpa-updater\".",
+	"updateTime":  "updateTime is when the manager last computed this entry.",
+	"replacement": "replacement is what a replacement of this pod would request if it were created now, including any startup boost. It is merged over the replacement's spec per container and per resource.",
+}
+
+func (PodResourceHint) SwaggerDoc() map[string]string {
+	return map_PodResourceHint
+}
+
 var map_PodSchedulingGate = map[string]string{
 	"":     "PodSchedulingGate is associated to a Pod to guard its scheduling.",
 	"name": "Name of the scheduling gate. Each scheduling gate must have a unique name field.",
@@ -2038,6 +2059,7 @@ var map_PodStatus = map[string]string{
 	"resources":                            "Resources represents the compute resource requests and limits that have been applied at the pod level if pod-level requests or limits are set in PodSpec.Resources",
 	"nodeAllocatableResourceClaimStatuses": "NodeAllocatableResourceClaimStatuses contains the status of node-allocatable resources that were allocated for this pod through DRA claims. This includes resources currently reported in v1.Node `status.allocatable` that are not extended resources (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#extended-resources). Examples include \"cpu\", \"memory\", \"ephemeral-storage\", and hugepages.",
 	"volumeHealth":                         "volumeHealth contains node-reported health for each volume the pod is using. Populated by the kubelet on the pod's node.",
+	"resourceHints":                        "resourceHints are sizing hints published by vertical autoscalers and other managers for consumers such as node autoscalers. Each entry is owned by one manager. Hints are advisory; kubelet and kube-scheduler ignore them. Written only through the pods/resourcehints subresource.",
 }
 
 func (PodStatus) SwaggerDoc() map[string]string {
@@ -2322,6 +2344,16 @@ var map_ResourceHealth = map[string]string{
 
 func (ResourceHealth) SwaggerDoc() map[string]string {
 	return map_ResourceHealth
+}
+
+var map_ResourceHintValues = map[string]string{
+	"":            "ResourceHintValues are requests for some of a pod's containers and, for pods with pod-level resources, for the pod.",
+	"containers":  "containers lists per-container requests. Names refer to entries in spec.containers or spec.initContainers. Containers and resources not listed keep their spec values.",
+	"podRequests": "podRequests are pod-level requests, used when spec.resources is set.",
+}
+
+func (ResourceHintValues) SwaggerDoc() map[string]string {
+	return map_ResourceHintValues
 }
 
 var map_ResourceQuota = map[string]string{

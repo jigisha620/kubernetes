@@ -551,6 +551,16 @@ func SetObjectDefaults_Pod(in *corev1.Pod) {
 		SetDefaults_ResourceList(&in.Status.Resources.Limits)
 		SetDefaults_ResourceList(&in.Status.Resources.Requests)
 	}
+	for i := range in.Status.ResourceHints {
+		a := &in.Status.ResourceHints[i]
+		if a.Replacement != nil {
+			for j := range a.Replacement.Containers {
+				b := &a.Replacement.Containers[j]
+				SetDefaults_ResourceList(&b.Requests)
+			}
+			SetDefaults_ResourceList(&a.Replacement.PodRequests)
+		}
+	}
 }
 
 func SetObjectDefaults_PodList(in *corev1.PodList) {

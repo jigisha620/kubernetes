@@ -106,6 +106,9 @@ func init() {
 			"status.nodeAllocatableResourceClaimStatuses[*].resourceClaimName": {
 				{ErrorType: "FieldValueRequired"},
 			},
+			"status.resourceHints[*]": {
+				{ErrorType: "FieldValueDuplicate"},
+			},
 			"status.volumeHealth[*]": {
 				{ErrorType: "FieldValueDuplicate"},
 			},

@@ -5774,6 +5774,64 @@ type PodStatus struct {
 	// +k8s:listType=map
 	// +k8s:listMapKey=name
 	VolumeHealth []PodVolumeHealth `json:"volumeHealth,omitempty" protobuf:"bytes,22,rep,name=volumeHealth"`
+
+	// resourceHints are sizing hints published by vertical autoscalers and other
+	// managers for consumers such as node autoscalers. Each entry is owned by one
+	// manager. Hints are advisory; kubelet and kube-scheduler ignore them.
+	// Written only through the pods/resourcehints subresource.
+	// +featureGate=PodResourceHints
+	// +optional
+	// +listType=map
+	// +listMapKey=manager
+	// +k8s:optional
+	// +k8s:listType=map
+	// +k8s:listMapKey=manager
+	ResourceHints []PodResourceHint `json:"resourceHints,omitempty" protobuf:"bytes,23,rep,name=resourceHints"`
+}
+
+// PodResourceHint is one manager's sizing hints for a pod.
+type PodResourceHint struct {
+	// manager identifies the writer as a domain-prefixed path, for example
+	// "autoscaling.k8s.io/vpa-updater".
+	// +required
+	Manager string `json:"manager" protobuf:"bytes,1,opt,name=manager"`
+
+	// updateTime is when the manager last computed this entry.
+	// +required
+	UpdateTime metav1.Time `json:"updateTime" protobuf:"bytes,2,opt,name=updateTime"`
+
+	// replacement is what a replacement of this pod would request if it were
+	// created now, including any startup boost. It is merged over the
+	// replacement's spec per container and per resource.
+	// +optional
+	Replacement *ResourceHintValues `json:"replacement,omitempty" protobuf:"bytes,3,opt,name=replacement"`
+}
+
+// ResourceHintValues are requests for some of a pod's containers and, for pods
+// with pod-level resources, for the pod.
+type ResourceHintValues struct {
+	// containers lists per-container requests. Names refer to entries in
+	// spec.containers or spec.initContainers. Containers and resources not
+	// listed keep their spec values.
+	// +optional
+	// +listType=map
+	// +listMapKey=name
+	Containers []ContainerResourceHint `json:"containers,omitempty" protobuf:"bytes,1,rep,name=containers"`
+
+	// podRequests are pod-level requests, used when spec.resources is set.
+	// +optional
+	PodRequests ResourceList `json:"podRequests,omitempty" protobuf:"bytes,2,rep,name=podRequests,casttype=ResourceList,castkey=ResourceName"`
+}
+
+// ContainerResourceHint holds hinted requests for one container.
+type ContainerResourceHint struct {
+	// name of the container.
+	// +required
+	Name string `json:"name" protobuf:"bytes,1,opt,name=name"`
+
+	// requests for the container.
+	// +optional
+	Requests ResourceList `json:"requests,omitempty" protobuf:"bytes,2,rep,name=requests,casttype=ResourceList,castkey=ResourceName"`
 }
 
 // +genclient
@@ -5788,6 +5846,7 @@ type PodStatus struct {
 // +k8s:supportsSubresource="/ephemeralcontainers"
 // +k8s:supportsSubresource="/resize"
 // +k8s:supportsSubresource="/eviction"
+// +k8s:supportsSubresource="/resourcehints"
 type Pod struct {
 	metav1.TypeMeta `json:""`
 	// Standard object's metadata.
